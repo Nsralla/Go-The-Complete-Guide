@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"example.com/bank/utilities"
+	"github.com/Pallinder/go-randomdata"
 )
 const fileName = "balance.txt"
 
 func main(){
+	fmt.Println("reach us on: ", randomdata.PhoneNumber())
 	balance , err := utilities.ReadFromFile(fileName)
 	if err != nil {
 		fmt.Println(err)

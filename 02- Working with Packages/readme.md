@@ -16,3 +16,13 @@ import (
     i.e. example.com/bank/utilities
 ) 
 then you can start using the functions inside that package. i.e. utilities.ReadFromFile()
+
+A link to third party packages: https://pkg.go.dev/
+
+to download a package: go get 'link of that package' i.e: github.com/Pallinder/go-randomdata
+
+to use that third party package: import (
+    "github.com/Pallinder/go-randomdata"
+)
+then fmt.print(randomdata.phoneNumber())
+to download all dependencies or packages existing at go.mod if you are starting a new project: go get.
