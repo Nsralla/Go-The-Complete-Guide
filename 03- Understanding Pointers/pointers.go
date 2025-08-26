@@ -10,9 +10,21 @@ func main(){
 
 	fmt.Println("address where agePointer points: ", agePointer)
 	fmt.Println("value at that address: ", *agePointer)
-	fmt.Println("Age minus 18: ", calcAge((agePointer)))
+	// METHOD 1:
+	// fmt.Println("Age minus 18: ", calcAge((agePointer)))
+
+	// METHOD 2:
+	calcAge(agePointer)
+	fmt.Println("Age minus 18: ", *agePointer)
 }
 
-func calcAge(age *int) int{
-	return *age - 18
+// METHOD1:
+// func calcAge(age *int) int{
+// 	return *age - 18
+// }
+
+
+// Method 2:
+func calcAge(age *int){
+	*age = *age - 18
 }
