@@ -2,43 +2,46 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"example.com/structs/user"
+	// "time"
 )
 
-//  Struct: Groups related data into one location
-type User struct {
-	FirstName string
-	LastName string
-	BirthDate string 
-	createdAt time.Time
-}
+
 func main(){
 	firstName := getUserInput("Please enter your first name: ")
 	lastName := getUserInput("Please enter your last name: ")
 	birthDate := getUserInput("Please enter your birth date MM/DD/YYYY: ")
 	
-	user := User{
-		FirstName: firstName,
-		LastName: lastName,
-		BirthDate: birthDate,
-		createdAt: time.Now(),
-	}
+	// user := user.User{
+	// 	firstName: firstName, // this will cause an error, because i made that this user parameters are not available outside their struct (private access modifier)
+	// 	lastName:  lastName,
+	// 	birthDate: birthDate,
+	// 	createdAt: time.Now(),
+	// }
+	// USING User built in methods
+	// user.PrintUserInfo()
+	// // UPdating user info from built in method
+	// user.UpdateLastName("Smith")
+	// // USING User built in methods
+	// user.PrintUserInfo()
 
-	printUserInfo(&user)
-}
 
-func printUserInfo(user *User) {
-	fmt.Println("User Information:")
-	fmt.Println("First Name:", user.FirstName)
+
 	// or
-	fmt.Println("First Name:", (*user).FirstName) // same as above
-	fmt.Println("Last Name:", user.LastName)
-	fmt.Println("Birth Date:", user.BirthDate)
-	fmt.Println("Created At:", user.createdAt)
+	// CREATING A USER USING CONSTUCTOR METHOD
+	newUser, err := user.New(firstName, lastName, birthDate)
+	if err != nil {
+		fmt.Println("Error creating user:", err)
+		return
+	}
+	newUser.PrintUserInfo()
+
+	
 }
 
 func getUserInput(prompt string)(value string) {
 	fmt.Print(prompt)
-	fmt.Scan(&value)
+	// fmt.Scan(&value)
+	fmt.Scanln(&value) // Entering a new line will end input
 	return
 }
