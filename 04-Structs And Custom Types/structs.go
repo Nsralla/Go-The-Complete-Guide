@@ -36,7 +36,18 @@ func main(){
 	}
 	newUser.PrintUserInfo()
 
-	
+
+
+	// create new admin
+	admin, err := user.NewAdmin("admin@example.com", "password123", firstName, lastName, birthDate)
+	if err != nil {
+		fmt.Println("Error creating admin:", err)
+		return
+	}
+	// admin.PrintUserInfo()
+	admin.UpdateLastName("AdminLastName")
+	admin.PrintUserInfo()
+	// admin.User.PrintUserInfo()
 }
 
 func getUserInput(prompt string)(value string) {

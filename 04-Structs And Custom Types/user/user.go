@@ -11,6 +11,13 @@ type User struct {
 	birthDate string
 	createdAt time.Time
 }
+// STRUCT EMBEDDING: Inheritance in java
+type Admin struct {
+	email   string
+	password string
+	User // don't give it a name i.e user User so you can have direct access to User fields and methods
+}
+
 //attach a method to the User struct
 // HERE YOU ARE PASSING A COPY AND NOT THE ORIGINAL STRUCT.
 func (user User) PrintUserInfo() {
@@ -39,5 +46,21 @@ func New(firstName, lastName, birthDate string) (*User, error) {
 		lastName:  lastName,
 		birthDate: birthDate,
 		createdAt: time.Now(),
+	}, nil
+}
+
+func NewAdmin(email, password, firstName, lastName, birthDate string) (*Admin, error){
+	if email == "" || password == "" {
+		return nil, errors.New("all fields are required")
+	}
+	return &Admin{
+		email:    email,
+		password: password,
+		User: User{
+			firstName: firstName,
+			lastName:  lastName,
+			birthDate: birthDate,
+			createdAt: time.Now(),
+		},
 	}, nil
 }
