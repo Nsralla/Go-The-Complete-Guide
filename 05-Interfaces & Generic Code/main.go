@@ -24,10 +24,7 @@ type Outputter interface {
 	ToString()
 }
 
-func main(){
-
-	
-
+func main() {
 	// register new note
 	title, content := getUserInput()
 	newNote, err := note.New(title, content)
@@ -77,7 +74,18 @@ func main(){
 }
 
 func printAny(value any) {
-	fmt.Println(value)
+	switch value.(type){
+	case int:
+		fmt.Println("Integer:", value)
+	case string:
+		fmt.Println("String:", value)
+	case note.Note:
+		fmt.Println("Note:", value)
+	case todo.Todo:
+		fmt.Println("Todo:", value)
+	default:
+		fmt.Println("Unknown type:", value)
+	}
 }
 func outputData(data Outputter) error{
 	data.ToString() // this struct must implement the ToString method
