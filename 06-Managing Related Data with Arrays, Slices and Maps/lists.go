@@ -13,6 +13,13 @@ func main(){
 	fmt.Println("\nAfter appending, prices: ", prices)
 	// what happend to original prices? GO will garbage collect the original slice if there are no references to it
 
+
+
+	// Unpacking list values
+	discounts := []float64{1.0, 0.8, 0.9}
+	prices = append(prices, discounts...) // unpacking the discounts slice and appending its values to prices
+	fmt.Println("After unpacking discounts, prices: ", prices)
+	
 }
 
 // func main() {
