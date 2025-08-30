@@ -50,6 +50,59 @@ Values:       1   2   3   4   5
 - **When appending**: Go can reuse the underlying array if there's remaining capacity.
 - **When managing memory and performance**.
 
+## 🚀 Dynamic Arrays in Go
+
+Go doesn't have traditional "dynamic arrays" like some other languages, but **slices** provide dynamic array functionality.
+
+### Key Features of Dynamic Arrays (Slices):
+
+- **Automatic resizing**: When you append beyond capacity, Go automatically allocates a larger underlying array
+- **Memory management**: Go handles memory allocation and deallocation automatically
+- **Growth strategy**: Typically doubles the capacity when reallocation is needed
+
+### Example of Dynamic Behavior:
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    // Start with empty slice
+    var numbers []int
+    fmt.Printf("Initial: len=%d, cap=%d\n", len(numbers), cap(numbers))
+    
+    // Add elements dynamically
+    for i := 1; i <= 10; i++ {
+        numbers = append(numbers, i)
+        fmt.Printf("After adding %d: len=%d, cap=%d\n", i, len(numbers), cap(numbers))
+    }
+    
+    fmt.Println("Final slice:", numbers)
+}
+```
+
+### Output demonstrates capacity growth:
+```
+Initial: len=0, cap=0
+After adding 1: len=1, cap=1
+After adding 2: len=2, cap=2
+After adding 3: len=3, cap=4
+After adding 4: len=4, cap=4
+After adding 5: len=5, cap=8
+After adding 6: len=6, cap=8
+After adding 7: len=7, cap=8
+After adding 8: len=8, cap=8
+After adding 9: len=9, cap=16
+After adding 10: len=10, cap=16
+```
+
+### Performance Tips:
+
+- **Pre-allocate when size is known**: Use `make([]int, 0, expectedSize)` to avoid multiple reallocations
+- **Batch operations**: Append multiple elements at once when possible
+- **Monitor capacity**: Understanding growth patterns helps optimize memory usage
+
 ## 🧠 Summary
 
 | Property | Description | Function | Example Result |
