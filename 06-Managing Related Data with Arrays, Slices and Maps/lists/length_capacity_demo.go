@@ -1,9 +1,9 @@
-	package main
+	package lists
 
 	import "fmt"
 
-	func main33() {
-		fmt.Println("=== LENGTH vs CAPACITY DEMONSTRATION ===\n")
+	func Main33() {
+		fmt.Println("=== LENGTH vs CAPACITY DEMONSTRATION ===")
 
 		// 1. Creating a slice with make()
 		fmt.Println("1. Using make() to create slice:")
