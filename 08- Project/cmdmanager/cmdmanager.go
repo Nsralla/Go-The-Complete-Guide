@@ -5,6 +5,7 @@ import "fmt"
 type CMDManager struct {
 }
 
+// READ LINES FROM CMD
 func (cmd *CMDManager) ReadLinesFromFile() (lines []string, err error) {
 	for {
 		var line string
@@ -23,8 +24,11 @@ func (cmd *CMDManager) ReadLinesFromFile() (lines []string, err error) {
 	return lines, nil
 }
 
+// WRITE DATA TO CMD	
 func (cmd *CMDManager) WriteJson(data any) error {
 	fmt.Println("Writing JSON to file...")
+	fmt.Println(data)
+	fmt.Println("JSON written successfully.***************")
 	return nil
 }
 
