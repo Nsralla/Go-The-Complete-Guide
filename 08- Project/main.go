@@ -1,8 +1,11 @@
 package main
 
 import (
-	"example.com/calc/job"
 	"fmt"
+
+	"example.com/calc/filemanager"
+	"example.com/calc/job"
+	// "example.com/calc/cmdmanager"
 )
 
 func main() {
@@ -10,7 +13,9 @@ func main() {
 	for _, taxRate := range taxRates {
 		inputFilePath := "job/prices.txt"
 		outputFilePath := fmt.Sprintf("job/prices_with_tax_%.2f.json", taxRate)
-		j := job.New(taxRate, inputFilePath, outputFilePath)
+		fm := filemanager.New(inputFilePath, outputFilePath)
+		// cmdM := cmdmanager.New()
+		j := job.New(taxRate, fm)
 		j.Process()
 	}
 }
