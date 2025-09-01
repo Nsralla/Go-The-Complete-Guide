@@ -1,6 +1,7 @@
 package job
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -18,10 +19,15 @@ type Job struct {
 }
 
 // Compute the PricesIncludingTax
-func (job *Job) Process() {
+func (job *Job) Process() error{
 
 	// Read prices from file
-	job.loadPrices()
+	err := job.loadPrices()
+	if err != nil {
+		// fmt.Println("Error loading prices:", err)
+		return errors.New("failed to load prices " + err.Error())
+	}
+
 	fmt.Print("Prices loaded successfully \n *********************\n")
 
 	// Compute prices including tax
@@ -35,17 +41,19 @@ func (job *Job) Process() {
 	// Write `price with tax` to json file
 	job.IOManager.WriteJson(job)
 
+	return nil
+
 }
 
 // Read prices from .txt file, Then assign it to the job struct
-func (j *Job) loadPrices() {
+func (j *Job) loadPrices() error {
 
 	// Read prices from prices.txt
 	// Reading logic exists at example.com/calc/filemanager
 	lines, err := j.IOManager.ReadLinesFromFile()
 	if err != nil {
-		fmt.Println("Error reading lines from file:", err)
-		return
+		// fmt.Println("Error reading lines from file:", err)
+		return errors.New("failed to read lines from file: " + err.Error())
 	}
 
 	// Convert lines into float64, then save it into slice.
@@ -53,11 +61,12 @@ func (j *Job) loadPrices() {
 	prices, err := conversion.StringsToFloat(lines)
 	if err != nil {
 		fmt.Println("Error converting strings to float:", err)
-		return
+		return errors.New("failed to convert strings to float: " + err.Error())
 	}
 
 	// Assign the prices for the Job struct
 	j.Prices = prices
+	return nil
 }
 
 // Constructor to create a new Job with IOManager
