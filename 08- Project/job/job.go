@@ -1,11 +1,10 @@
 package job
 
 import (
-	"bufio"
 	"fmt"
 	"math"
-	"os"
 	"example.com/calc/conversion"
+	"example.com/calc/filemanager"
 )
 
 type Job struct {
@@ -37,42 +36,25 @@ func (job *Job) Process() {
 
 // Read prices from .txt file, Then assign it to the job struct
 func (j *Job) loadPrices(){
-	// Open the file
-	file, err := os.Open("job/prices.txt")
+
+	// Read prices from prices.txt
+	// Reading logic exists at example.com/calc/filemanager
+	lines, err := filemanager.ReadLinesFromFile("job/prices.txt")
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		fmt.Println("Error reading lines from file:", err)
 		return
 	}
-
-	// Read the lines from the file
-	lines := []string{}
-	reader := bufio.NewScanner(file)
-	for reader.Scan() { // this will read line by line
-		line := reader.Text()
-		lines = append(lines, line)
-	}
-
 
 	// Convert lines into float64, then save it into slice.
 	// Conversion functions is at example.com/calc/conversion. will return prices, or an error if exists
 	prices, err := conversion.StringsToFloat(lines)
 	if err != nil {
 		fmt.Println("Error converting strings to float:", err)
-		file.Close()
 		return
 	}
 
 	// Assign the prices for the Job struct
 	j.Prices = prices
-	
-	
-	err = reader.Err()
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		file.Close()
-		return
-	}
-	file.Close()
 }
 
 // Constructor to create a new Job
