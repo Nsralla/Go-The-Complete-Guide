@@ -7,30 +7,38 @@ import (
 	"example.com/calc/filemanager"
 )
 
+
+
+
 type Job struct {
-	TaxRate            float64 // tax rate
-	Prices             []float64 // array containing prices for the job
-	PricesIncludingTax map[float64]float64 // dictionary for each price with its tax included (price * tax). key: price, value: price * tax
+	TaxRate            float64 `json:"tax_rate"`     // tax rate 
+	Prices             []float64 `json:"prices"`  // array containing prices for the job
+	PricesIncludingTax map[string]float64 `json:"prices_with_tax"` // dictionary for each price with its tax included (price * tax). key: price, value: price * tax
+	// JSON object keys are always strings.
+	InputFilePath  string `json:"-"`
+	OutputFilePath string `json:"-"`
+	FileManager    *filemanager.FileManager `json:"-"` // this tells go how we want job to appear in the json file
 }
+
+
 
 // Compute the PricesIncludingTax
 func (job *Job) Process() { 
-
+	
 	// Read prices from file
 	job.loadPrices()
-	fmt.Println("Prices loaded from file: ", job.Prices)
 	fmt.Print("Prices loaded successfully \n *********************\n")
 
 	// Compute prices including tax
-	result := make(map[float64]float64) // Dictionary to temporarily hold prices including tax
+	result := make(map[string]float64) // Dictionary to temporarily hold `prices including tax`
 	for _, price := range job.Prices {
 		priceWithTax := (1 + job.TaxRate) * price
-		result[price] = math.Round(priceWithTax * 100) / 100 // to round to 2 decimal places
+		result[fmt.Sprintf("%.2f", price)] = math.Round(priceWithTax * 100) / 100 // to round to 2 decimal places
 	}
-	// Assign the Prices including tax to the Job struct
+	// Assign the `Prices including tax` to the Job struct
 	job.PricesIncludingTax = result
-	// Print it
-	PrintPricesWithTax(job)
+	// Write `price with tax` to json file
+	job.FileManager.WriteJson(job)
 
 }
 
@@ -39,7 +47,7 @@ func (j *Job) loadPrices(){
 
 	// Read prices from prices.txt
 	// Reading logic exists at example.com/calc/filemanager
-	lines, err := filemanager.ReadLinesFromFile("job/prices.txt")
+	lines, err := j.FileManager.ReadLinesFromFile()
 	if err != nil {
 		fmt.Println("Error reading lines from file:", err)
 		return
@@ -57,19 +65,13 @@ func (j *Job) loadPrices(){
 	j.Prices = prices
 }
 
-// Constructor to create a new Job
-func New(taxRate float64) *Job {
-	return &Job{
-		TaxRate: taxRate,
-		// Prices:  []float64{10, 20, 30},
+// Constructor to create a new Job with FileManager
+func New(taxRate float64, inputFilePath, outputFilePath string) *Job {
+		return &Job{
+			TaxRate:     taxRate,
+			InputFilePath:  inputFilePath,
+			OutputFilePath: outputFilePath,
+			FileManager: filemanager.New(inputFilePath, outputFilePath),
+		}
 	}
-}
 
-// Print the prices including tax
-func PrintPricesWithTax(job *Job){
-	fmt.Printf("Tax rate : %.2f has the following prices :  ", job.TaxRate)
-	for _, value := range job.PricesIncludingTax {
-		fmt.Printf("%.2f, ", value)
-	}
-	fmt.Println()
-}
