@@ -25,9 +25,12 @@ func (fm *FileManager) ReadLinesFromFile()(lines []string, err error){
 	file, err := os.Open(fm.InputFilePath)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
-		file.Close()
 		return nil, err
 	}
+	// Instead of closing the file in all the code, use defer file.Close()/
+	// which will delay the closing till the function finishes
+	defer file.Close()
+	// also it must be used after insuring the file opens with no erros.
 
 	// Read the lines from the file
 	lines = []string{}
@@ -43,7 +46,6 @@ func (fm *FileManager) ReadLinesFromFile()(lines []string, err error){
 		return nil, errors.New("error reading file: " + err.Error())
 	}
 	// Close file
-	file.Close()
 	return lines, nil
 
 }
@@ -55,6 +57,7 @@ func (fm *FileManager) WriteJson(data any) error {
 		fmt.Println("Error creating file:", err)
 		return errors.New("error creating file: " + err.Error())
 	}
+	defer file.Close()
 
 	time.Sleep(3 * time.Second) // Simulate a long write operation
 
@@ -64,6 +67,5 @@ func (fm *FileManager) WriteJson(data any) error {
 		fmt.Println("Error encoding JSON:", err)
 		return errors.New("error encoding JSON: " + err.Error())
 	}
-	file.Close()
 	return nil
 }
