@@ -57,3 +57,62 @@ func createEvent(context *gin.Context) {
 	}
 	context.JSON(http.StatusCreated, gin.H{"message": "Event Created successfully", "event": new_event})
 }
+
+
+func updateEventByID(context * gin.Context){
+	// Extract the ID from the URL
+	id := context.Param("id")
+	// Convert the ID to an integer 64
+	id_int, err := strconv.ParseInt(id, 10, 64)
+	if err != nil{
+		context.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("Invalid Id %s", id)})
+		return
+	}
+
+	// Verify if the event with the given ID exists
+	_,err = models.GetEvent(id_int)
+	if err != nil{
+		context.JSON(http.StatusNotFound, gin.H{"message": fmt.Sprintf("Event with ID %d not found", id_int)})
+		return
+	}
+
+	// Store the updated event at variable event
+	var event models.Event
+	err = context.ShouldBind(&event)
+	if err != nil{
+		context.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("Invalid event data: %v", err)})
+		return
+	}
+
+	event.ID = id_int
+	event.UserID = 1 // Assuming user ID is 1 for now
+	err = event.Update()
+	if err != nil{
+		context.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Error while updating event: %v", err)})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Event updated successfully", "event": event})
+
+}
+
+func deleteEventById(context * gin.Context) {
+	id := context.Param("id")
+	id_int, err := strconv.ParseInt(id, 10, 64)
+	if err != nil{
+		context.JSON(http.StatusBadRequest,gin.H{"message":fmt.Sprintf("Invalid format %v", err)} )
+	}
+
+	event, err := models.GetEvent(id_int)
+	if err != nil{
+		context.JSON(http.StatusNotFound, gin.H{"message": fmt.Sprintf("Event with ID %d not found", id_int)})
+		return 
+	}
+
+	err = event.Delete()
+	if err != nil{
+		context.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Error while deleting event: %v", err)})
+		return
+	}
+
+
+}
