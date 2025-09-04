@@ -1,9 +1,10 @@
 POST http://localhost:8080/events
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3R1c2VyMkBleGFtcGxlLmNvbSIsImlkIjoxLCJleHAiOjE3NTY5OTI2ODN9.9HJwLM7fCwrapUlj97Tf3BOuES9DPtuW0AcDDUd7HqQ
 
 {
-    "name":"sample4 event",
-    "description": "This is a sample4 event",
-    "location": "sample4 location",
+    "name":"Nonumy2982 voluptua vero magna diam sed, ipsum consetetur sit elitr stet ea.",
+    "description": "Di quale segreto da 'l che infiniti potremmo, priegano incominciare discerniamo sempre carissime per da quale. Iscacciato in e vita.",
+    "location": "Égjen hontalan öszetörjetek tátogjatok minden ti lágy kultúra is nem, halak pénzt viselők szeret tagadta öszetörjetek vakogjatok lovak a.",
     "dateTime": "2023-10-10T10:00:00Z"
 }

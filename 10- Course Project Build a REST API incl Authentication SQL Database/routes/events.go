@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"example.com/project/models"
+	"example.com/project/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,21 +42,42 @@ func getEvents(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	// Extract data from request.
-	var new_event models.Event
-	err := context.ShouldBindJSON(&new_event)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    // User must be authenticated to create an event
+    token := context.GetHeader("Authorization")
+    if token == "" {
+        context.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
+        return
+    }
+    
+    claims, err := utils.ValidateJWT(token)
+    if err != nil {
+        context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+        return
+    }
+    
+	// userEmail := claims.Email
+	userID := claims.ID
+    
+    // Log authenticated user info
+    // fmt.Printf("Authenticated user: ID=%d, Email=%s\n", userID, userEmail)
 
-	new_event.UserID = 1
-	new_event, err = new_event.Save()
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error while saving event: %v", err)})
-		return
-	}
-	context.JSON(http.StatusCreated, gin.H{"message": "Event Created successfully", "event": new_event})
+    // Extract data from request
+    var new_event models.Event
+    err = context.ShouldBindJSON(&new_event)
+    if err != nil {
+        context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Use the actual user ID from JWT claims
+    new_event.UserID = int(userID) // Convert uint to int if needed
+    new_event, err = new_event.Save()
+    if err != nil {
+        context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error while saving event: %v", err)})
+        return
+    }
+    
+    context.JSON(http.StatusCreated, gin.H{"message": "Event Created successfully", "event": new_event})
 }
 
 
