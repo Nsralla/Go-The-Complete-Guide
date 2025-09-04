@@ -11,11 +11,11 @@ type Event struct {
 	Description string `binding:"required"`
 	Location string `binding:"required"`
 	DateTime time.Time `binding:"required"`
-	UserID int 
+	UserID int64
 
 }
 
-func New(id int64, name string, description string, location string, dateTime time.Time, userID int) Event {
+func New(id int64, name string, description string, location string, dateTime time.Time, userID int64) Event {
 	return Event{
 		ID:          id,
 		Name:       name,

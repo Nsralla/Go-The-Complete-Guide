@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 
 	"example.com/project/db"
 	"example.com/project/utils"
@@ -39,6 +40,7 @@ func (u User) Save() (User, error) {
 
 func (u User) ValidateCredentials() (User, error) {
 	storedUser, err := GetUser(u)
+	fmt.Println("Stored user:", storedUser)
 	if err != nil {
 		return User{}, err
 	}
