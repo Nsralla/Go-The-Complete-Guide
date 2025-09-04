@@ -75,7 +75,7 @@ func updateEventByID(context * gin.Context){
 	}
 
 	// Verify if the event with the given ID exists
-	_,err = models.GetEvent(id_int)
+	old_event,err := models.GetEvent(id_int)
 	if err != nil{
 		context.JSON(http.StatusNotFound, gin.H{"message": fmt.Sprintf("Event with ID %d not found", id_int)})
 		return
@@ -89,8 +89,20 @@ func updateEventByID(context * gin.Context){
 		return
 	}
 
+
+	// User id who created the event
+	user_who_created_event := old_event.UserID
+	fmt.Println("User who created the event ID:", user_who_created_event)
+	// user who made the request
+	user_who_made_request := context.GetInt64("userID")
+	fmt.Println("User who made the request ID:", user_who_made_request)
+	if user_who_created_event != user_who_made_request {
+		context.JSON(http.StatusForbidden, gin.H{"message": "You are not authorized to update this event"})
+		return
+	}
+
 	event.ID = id_int
-	event.UserID = 1 // Assuming user ID is 1 for now
+	event.UserID = user_who_made_request 
 	err = event.Update()
 	if err != nil{
 		context.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Error while updating event: %v", err)})
@@ -101,20 +113,31 @@ func updateEventByID(context * gin.Context){
 }
 
 func deleteEventById(context * gin.Context) {
-	id := context.Param("id")
-	id_int, err := strconv.ParseInt(id, 10, 64)
-	if err != nil{
-		context.JSON(http.StatusBadRequest,gin.H{"message":fmt.Sprintf("Invalid format %v", err)} )
+	eventID := context.Param("id") // Extract the ID from the URL
+	event_id_int, err := strconv.ParseInt(eventID, 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("Invalid format %v", err)})
+		return
+	}
+	
+
+	event, err := models.GetEvent(event_id_int)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": fmt.Sprintf("Event with ID %d not found", event_id_int)})
+		return
 	}
 
-	event, err := models.GetEvent(id_int)
-	if err != nil{
-		context.JSON(http.StatusNotFound, gin.H{"message": fmt.Sprintf("Event with ID %d not found", id_int)})
-		return 
+	// Extract user id who made this request
+	user_sent_request := context.GetInt64("userID")
+	// Extract user id who created this event
+	user_created_event_id := event.UserID
+	if user_sent_request != user_created_event_id {
+		context.JSON(http.StatusForbidden, gin.H{"message": "You are not authorized to delete this event"})
+		return
 	}
 
 	err = event.Delete()
-	if err != nil{
+	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Error while deleting event: %v", err)})
 		return
 	}
