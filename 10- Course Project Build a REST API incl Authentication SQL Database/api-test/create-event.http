@@ -1,9 +1,9 @@
 POST http://localhost:8080/events
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3R1c2VyMkBleGFtcGxlLmNvbSIsImlkIjoxLCJleHAiOjE3NTY5OTQxMjl9.co0w9mDSisyUwetTEOfp7LzdLb_fQQQ2qvfklXVFnds
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5zckBleGFtcGxlLmNvbSIsImlkIjoxLCJleHAiOjE3NTcwMDAzNzB9.Yge55a2Mn4VoYaYw33xvcni9dFN9qF_9edd3L6Fn7cM
 
 {
-    "name":"Nonumy2222982 voluptua vero magna diam sed, ipsum consetetur sit elitr stet ea.",
+    "name":"nsr sit elitr stet ea.",
     "description": "Di quale segreto da 'l che infiniti potremmo, priegano incominciare discerniamo sempre carissime per da quale. Iscacciato in e vita.",
     "location": "Égjen hontalan öszetörjetek tátogjatok minden ti lágy kultúra is nem, halak pénzt viselők szeret tagadta öszetörjetek vakogjatok lovak a.",
     "dateTime": "2023-10-10T10:00:00Z"

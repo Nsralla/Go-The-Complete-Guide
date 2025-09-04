@@ -144,3 +144,5 @@ func deleteEventById(context * gin.Context) {
 
 
 }
+
+

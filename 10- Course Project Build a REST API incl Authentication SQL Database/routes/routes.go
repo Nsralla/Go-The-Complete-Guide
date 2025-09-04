@@ -17,13 +17,14 @@ func RegisterRoutes(server *gin.Engine) {
 	// and to reach the id you have to use context.GetInt64("userID") which will return the user id stored in the context by the middleware
 	server.DELETE("/events/:id",middleware.Authenticate ,deleteEventById) // User must be authenticated to delete an event
 	server.POST("/events", middleware.Authenticate ,createEvent) // User must be authenticated to create an event
-	
-	
-	server.GET("/events", getEvents) 
+	server.POST("/events/:id/register", middleware.Authenticate, registerForEvent)
+	server.DELETE("/events/:id/unregister", middleware.Authenticate, cancelRegistrationFromEvent)
+
+	server.GET("/events", getEvents)
 
 	server.POST("/signup", createUser)
 	server.POST("/login", login)
-
 	server.GET("/users", getAllUsers) // For testing purposes only
-	
+	server.GET("/events/registrations", middleware.Authenticate,getAllRegistrations) // Get events the authenticated user has registered for
+
 }

@@ -89,3 +89,44 @@ func GetAllUsers() ([]User, error) {
 	}
 	return users, nil
 }
+
+
+func GetUserByID(userID int64) (User, error) {
+	query := `
+		SELECT id, email
+		FROM users
+		WHERE id = ?
+	`
+
+	row := db.DB.QueryRow(query, userID)
+	var user User
+	err := row.Scan(&user.ID, &user.Email)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func GetEventRegistrationsByUserID(userID int64)([]Event, error) {
+	query := `
+		SELECT e.id, e.name, e.description, e.dateTime, e.location, e.user_id
+		FROM events e
+		JOIN registrations er ON e.id = er.event_id
+		WHERE er.user_id = ?
+	`
+	rows, err := db.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []Event
+	for rows.Next() {
+		var event Event
+		if err := rows.Scan(&event.ID, &event.Name, &event.Description, &event.DateTime, &event.Location, &event.UserID); err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+	return events, nil
+}

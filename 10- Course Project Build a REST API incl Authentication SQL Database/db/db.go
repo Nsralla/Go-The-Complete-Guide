@@ -31,7 +31,8 @@ func CreateTables(){
 			description TEXT NOT NULL,
 			location TEXT NOT NULL,
 			dateTime DATETIME NOT NULL,
-			user_id INTEGER NOT NULL
+			user_id INTEGER NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id)
 		)
 	`
 	//Execute the query every time the application starts
@@ -53,6 +54,22 @@ func CreateTables(){
 	_, err = DB.Exec(createUsersTable)
 	if err != nil{
 		fmt.Println("Error while creating users table")
+		panic(err)
+	}
+
+
+	createRegistrationsTable := `
+		CREATE TABLE IF NOT EXISTS registrations (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			event_id INTEGER NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (event_id) REFERENCES events(id)
+		)
+	`
+	_, err = DB.Exec(createRegistrationsTable)
+	if err != nil {
+		fmt.Println("Error while creating registrations table")
 		panic(err)
 	}
 }

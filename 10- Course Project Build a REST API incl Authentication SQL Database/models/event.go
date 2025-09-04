@@ -111,3 +111,38 @@ func (event Event) Delete() error {
 	}
 	return nil
 }
+
+func (e Event) RegisterUserForEvent(userID int64) error{
+	// Validate if the user id exists
+	_, err := GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+	// Register the user for the event
+	query := `
+		INSERT INTO registrations (user_id, event_id) VALUES (?, ?)
+	`
+	_, err = db.DB.Exec(query, userID, e.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e Event) CancelUserRegistration(userID int64) error{
+	// Validate if the user id exists
+	_, err:= GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+	// Cancel the registration
+	query := `
+		DELETE FROM registrations
+		WHERE user_id = ? AND event_id = ?
+	`
+	_, err = db.DB.Exec(query, userID, e.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
