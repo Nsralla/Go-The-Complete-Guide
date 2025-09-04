@@ -40,4 +40,19 @@ func CreateTables(){
 		fmt.Println("Error while creating events table")
 		panic(err)
 	}
+
+
+	createUsersTable := `
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			email TEXT NOT NULL UNIQUE,
+			password TEXT NOT NULL
+		)
+	`
+
+	_, err = DB.Exec(createUsersTable)
+	if err != nil{
+		fmt.Println("Error while creating users table")
+		panic(err)
+	}
 }

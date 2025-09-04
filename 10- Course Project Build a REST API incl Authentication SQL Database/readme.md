@@ -19,3 +19,6 @@ import (
 )
 `
 * underscore tells that we will not use it directly.
+
+## to install a package for password hashing:
+> go get -u golang.org/x/crypto
