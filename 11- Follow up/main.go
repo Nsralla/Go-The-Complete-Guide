@@ -2,31 +2,46 @@ package main
 
 import (
 	"fmt"
+
 )
 
+
 func main(){
-	// fmt.Println("Hellow, World!!")
-	// fmt.Println("Go" + "Lang")
-	// fmt.Println("1 + 1 = ", 1 + 1)
-	// fmt.Println("7.0 / 3.0 = ", fmt.Sprintf("%.2f",  7.0 / 3.0))
-	// fmt.Println(true && true)
-	// fmt.Println(true || false)
-	// fmt.Println(!true)
-	// fmt.Println(false && false)
+	var a [5]int
+	fmt.Println(a)
+	for i := range 5{
+		a[i] = i + 1
+	}
+	fmt.Println(a)
+	fmt.Println(len(a))
+	// Here we create an array a that will hold exactly 5 ints. The type of elements and length are both part of the array’s type. By default an array is zero-valued, which for ints means 0s.
 
-	var a  = "application"
-	fmt.Println("Value of a is: ", a)
+	var arr = [7]int{1,11,111,1111} // rest will be zero
+	fmt.Println(arr)
+	fmt.Println(len(arr))
 
-	var x, y = 34, 65
-	fmt.Println("Value of x is: ", x)
-	fmt.Println("Value of y is: ", y)
+	var arr2 = [...]int{100,1000,2000}
+	fmt.Println(arr2)
+	fmt.Println(len(arr2))
 
-	var d = true
-	fmt.Println("Value of d is: ", d)
+	b := [...]int{100, 3: 400, 500, 150}
+	fmt.Println("idx:", b)
 
-	var e int
-	fmt.Println("Value of e is: ", e)
+	var twoD = [2][2]int{
+		{6,11},
+		{87,32},
+	}
 
-	f := "HELLO"
-	fmt.Println("Value of f is: ", f)
+	fmt.Println(twoD)
+
+	// var x [3]int
+	// x =[...]int{1,2,3}
+
+	var twoD2 [2][3]int
+	twoD2 = [...][3]int{
+		{10,100,1000},
+		{20,200,2000},
+	}
+	fmt.Println(twoD2)
+
 }
