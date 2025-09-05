@@ -46,3 +46,59 @@ go build          # Create final executable once
 	fmt.Println(!true)
 	fmt.Println(false && false)
 ```
+
+
+## Variables lesson 2
+
+This section demonstrates different ways to declare and initialize variables in Go:
+
+### Variable Declaration Methods
+
+1. **Type Inference with `var`**: Go automatically detects the type
+   ```go
+   var a = "application"  // Go infers this is a string
+   ```
+
+2. **Multiple Variable Declaration**: Declare multiple variables in one line
+   ```go
+   var x, y = 34, 65  // Both are integers
+   ```
+
+3. **Boolean Variables**: Simple boolean declaration
+   ```go
+   var d = true  // Go infers this is a bool
+   ```
+
+4. **Zero Value Declaration**: Declare without initialization (gets default value)
+   ```go
+   var e int  // e gets zero value of int, which is 0
+   ```
+
+5. **Short Variable Declaration**: Using `:=` operator (only inside functions)
+   ```go
+   f := "HELLO"  // Shorthand syntax, Go infers string type
+   ```
+
+### Complete Example
+```go
+var a  = "application"
+fmt.Println("Value of a is: ", a)
+
+var x, y = 34, 65
+fmt.Println("Value of x is: ", x)
+fmt.Println("Value of y is: ", y)
+
+var d = true
+fmt.Println("Value of d is: ", d)
+
+var e int
+fmt.Println("Value of e is: ", e)  // Prints: 0 (zero value)
+
+f := "HELLO"
+fmt.Println("Value of f is: ", f)
+```
+
+### Key Points
+- **`:=` vs `var`**: `:=` can only be used inside functions, `var` can be used anywhere
+- **Zero Values**: Uninitialized variables get their type's zero value (0 for numbers, "" for strings, false for booleans)
+- **Type Inference**: Go automatically determines the type based on the assigned value
