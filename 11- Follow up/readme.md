@@ -36,7 +36,7 @@ go build          # Create final executable once
 
 
 ## Variables lesson 1
-`
+``` go
     fmt.Println("Hellow, World!!")
 	fmt.Println("Go" + "Lang")
 	fmt.Println("1 + 1 = ", 1 + 1)
@@ -45,4 +45,4 @@ go build          # Create final executable once
 	fmt.Println(true || false)
 	fmt.Println(!true)
 	fmt.Println(false && false)
-`
+```
