@@ -1699,3 +1699,936 @@ func processAsync(data string, callback func(string)) {
 - **Outer function variables persist** as long as closure exists
 - **Powerful for creating specialized functions** with embedded state
 - **Memory overhead** - be mindful of what gets captured
+
+## Pointers
+
+Pointers in Go are variables that store the memory address of another variable. They provide a way to indirectly access and modify variables, enabling efficient memory usage and allowing functions to modify variables passed as arguments. Understanding pointers is crucial for efficient Go programming.
+
+### Key Characteristics of Pointers
+
+1. **Memory Address Storage**: Pointers store the memory address of another variable, not the value itself
+2. **Indirect Access**: Use `*` operator to access/modify the value at the memory address
+3. **Reference Passing**: Enable functions to modify original variables instead of copies
+4. **Memory Efficiency**: Avoid copying large data structures by passing addresses
+5. **Zero Value**: The zero value of a pointer is `nil`
+
+### Pointer Syntax and Operations
+
+#### 1. Address-of Operator (`&`)
+```go
+var x int = 42
+var ptr *int = &x                    // Get address of x and store in ptr
+fmt.Println("Address of x:", &x)     // Prints memory address like: 0xc000014098
+```
+
+#### 2. Dereference Operator (`*`)
+```go
+fmt.Println("Value at address:", *ptr) // Prints: 42 (value stored at the address)
+*ptr = 100                           // Modify the value at the address
+fmt.Println("New value of x:", x)    // Prints: 100 (original variable changed)
+```
+
+### Demonstrating Pass by Value vs Pass by Pointer
+
+The current example shows the fundamental difference between passing values and passing pointers to functions:
+
+```go
+func main(){
+    i := 8
+    fmt.Println("value of i before zeroVal:", i) // 8
+    zeroVal(i)                                   // Pass by value
+    fmt.Println("value of i after zeroVal:", i)  // 8 (unchanged)
+    fmt.Println("address of i in main:", &i)     // Original address
+
+    fmt.Println("-----")
+    fmt.Println("value of i before zeroPtr:", i) // 8
+    zeroPtr(&i)                                  // Pass by pointer
+    fmt.Println("value of i after zeroPtr:", i)  // 0 (modified)
+    fmt.Println("address of i in main:", &i)     // Same address
+}
+
+// Pass by Value - receives a copy of the value
+func zeroVal(value int){
+    value = 0                        // Only modifies the local copy
+}
+
+// Pass by Pointer - receives the memory address
+func zeroPtr(ptr *int){
+    fmt.Println("value of ptr in zeroPtr:", ptr) // Prints the address
+    *ptr = 0                         // Modifies the value at the address
+}
+```
+
+### Pass by Value vs Pass by Pointer Comparison
+
+| Aspect | Pass by Value | Pass by Pointer |
+|--------|---------------|-----------------|
+| **Parameter** | `func f(x int)` | `func f(x *int)` |
+| **Function Call** | `f(variable)` | `f(&variable)` |
+| **Memory Usage** | Creates a copy | Passes address only |
+| **Original Variable** | Unchanged | Can be modified |
+| **Performance** | Slower for large data | Faster (no copying) |
+| **Safety** | Safe (no side effects) | Can cause side effects |
+
+### Pointer Declaration and Initialization
+
+#### 1. Declare and Initialize with Address
+```go
+var x int = 42
+var ptr *int = &x                    // Pointer to int, initialized with address of x
+```
+
+#### 2. Declare Pointer and Initialize Later
+```go
+var ptr *int                         // Zero value is nil
+x := 42
+ptr = &x                             // Assign address later
+```
+
+#### 3. Short Declaration with Pointer
+```go
+x := 42
+ptr := &x                            // Short declaration with address assignment
+```
+
+### Pointer Safety and Best Practices
+
+#### 1. Nil Pointer Checks
+```go
+var ptr *int                         // ptr is nil
+if ptr != nil {
+    fmt.Println(*ptr)               // Safe to dereference
+} else {
+    fmt.Println("Pointer is nil")   // Avoid dereferencing nil pointer
+}
+```
+
+#### 2. Creating Pointers with `new()`
+```go
+ptr := new(int)                      // Allocates memory for int, returns pointer
+*ptr = 42                            // Set value
+fmt.Println(*ptr)                    // Prints: 42
+```
+
+### Common Pointer Use Cases
+
+#### 1. Modifying Function Parameters
+```go
+func increment(x *int) {
+    *x++                             // Increment the value at the address
+}
+
+func main() {
+    num := 5
+    increment(&num)                  // Pass address
+    fmt.Println(num)                 // Prints: 6
+}
+```
+
+#### 2. Avoiding Large Data Copying
+```go
+type LargeStruct struct {
+    data [1000000]int               // Large array
+}
+
+func processLarge(ls *LargeStruct) { // Pass pointer to avoid copying
+    // Process the large struct efficiently
+}
+```
+
+#### 3. Optional Values
+```go
+func findUser(id int) *User {
+    if user := database.Get(id); user != nil {
+        return &user                 // Return pointer to user
+    }
+    return nil                       // Return nil if not found
+}
+```
+
+### Pointer Arithmetic Limitations
+
+Unlike C/C++, Go does **not** support pointer arithmetic:
+
+```go
+// This is NOT allowed in Go:
+// ptr++                            // Error: invalid operation
+// ptr + 1                          // Error: invalid operation
+```
+
+### Memory Management with Pointers
+
+#### 1. Automatic Garbage Collection
+```go
+func createPointer() *int {
+    x := 42
+    return &x                        // Safe: Go's GC will manage memory
+}
+```
+
+#### 2. Pointer to Pointer
+```go
+x := 42
+ptr := &x                           // Pointer to int
+ptrToPtr := &ptr                    // Pointer to pointer to int
+
+fmt.Println(**ptrToPtr)             // Prints: 42 (double dereference)
+```
+
+### Advanced Pointer Patterns
+
+#### 1. Struct Field Pointers
+```go
+type Person struct {
+    Name string
+    Age  int
+}
+
+func updateAge(p *Person, newAge int) {
+    p.Age = newAge                   // Automatic dereferencing for struct fields
+    // Equivalent to: (*p).Age = newAge
+}
+```
+
+#### 2. Slice of Pointers
+```go
+var numbers []*int
+for i := 0; i < 3; i++ {
+    num := i * 10
+    numbers = append(numbers, &num)  // Store pointers to different variables
+}
+```
+
+### Key Pointer Concepts Summary
+
+| Concept | Syntax | Description |
+|---------|--------|-------------|
+| **Address-of** | `&variable` | Get memory address of variable |
+| **Dereference** | `*pointer` | Access value at memory address |
+| **Pointer Type** | `*Type` | Declare pointer to Type |
+| **Nil Check** | `if ptr != nil` | Check if pointer is valid |
+| **New Allocation** | `new(Type)` | Allocate memory and return pointer |
+
+### Best Practices
+
+1. **Always check for nil** before dereferencing pointers
+2. **Use pointers for large structs** to avoid expensive copying
+3. **Return pointers from functions** when you need to modify the original data
+4. **Prefer value types** for small data unless modification is needed
+5. **Use descriptive names** for pointer variables (e.g., `userPtr`, `configPtr`)
+6. **Avoid unnecessary pointer usage** - use them when they provide clear benefits
+7. **Remember automatic dereferencing** for struct fields and method calls
+
+### Common Pitfalls
+
+1. **Dereferencing nil pointers** causes runtime panics
+2. **Forgetting the `&` operator** when you need a pointer
+3. **Confusing pointer types** with value types in function signatures
+4. **Memory leaks** can occur if pointers prevent garbage collection
+
+Pointers are a powerful feature in Go that enable efficient memory usage and allow functions to modify their arguments. Understanding when and how to use them is essential for writing effective Go programs.
+
+## Structs
+
+Structs in Go are custom data types that group together fields of different types. They are similar to classes in other languages but without inheritance. Structs are value types and provide a way to model real-world entities by bundling related data together.
+
+### Key Characteristics of Structs
+
+1. **Value Types**: Structs are passed by value, meaning they are copied when assigned or passed to functions
+2. **Custom Types**: Define your own data types with named fields
+3. **Zero Values**: Uninitialized struct fields get their type's zero value
+4. **Composition**: Support composition through embedding rather than inheritance
+5. **Methods**: Can have methods associated with them
+
+### Struct Declaration and Definition
+
+#### Basic Struct Definition
+```go
+type Car struct {
+    Model      string
+    Year       int
+    Horsepower int
+    Color      string
+    Wheels     []Wheel    // Slice of other structs
+}
+
+type Wheel struct {
+    Radius int
+    Width  float64
+}
+```
+
+### Struct Initialization Methods
+
+#### 1. Struct Literal with Field Names
+```go
+car1 := Car{
+    Model:      "Toyota Camry",
+    Year:       2020,
+    Horsepower: 203,
+    Color:      "White",
+    Wheels: []Wheel{
+        {
+            Radius: 16,
+            Width:  9.0,
+        },
+        {
+            Radius: 16,
+            Width:  9.0,
+        },
+    },
+}
+```
+
+#### 2. Constructor Function Pattern
+```go
+func New(model string, year int, horsepower int, color string, radius int, width float64) *Car {
+    return &Car{
+        Model:      model,
+        Year:       year,
+        Horsepower: horsepower,
+        Color:      color,
+        Wheels: []Wheel{
+            {radius, width},
+            {radius, width},
+            {radius, width},
+            {radius, width},
+        },
+    }
+}
+
+// Usage:
+car2 := New("Honda Accord", 2022, 192, "Black", 17, 8.5)
+```
+
+### Struct Embedding (Composition)
+
+Go supports composition through struct embedding, which allows you to include one struct inside another:
+
+```go
+type Truck struct {
+    Car           // Embedded struct (anonymous field)
+    Size int      // Additional field specific to Truck
+}
+
+// Creating an embedded struct
+truck := Truck{
+    Car: Car{
+        Model:      "Ford F-150",
+        Year:       2021,
+        Horsepower: 290,
+        Color:      "Blue",
+        Wheels: []Wheel{
+            {17, 11.0},
+            {17, 11.0},
+            {17, 11.0},
+            {17, 11.0},
+        },
+    },
+    Size: 1200,
+}
+
+// Access embedded fields directly
+fmt.Println(truck.Horsepower, truck.Size)  // Direct access to Car's Horsepower
+fmt.Println(truck.Car.Model)               // Explicit access through Car
+```
+
+### Struct Methods
+
+Methods can be associated with structs using method receivers:
+
+#### 1. Value Receiver Methods
+```go
+func (c Car) GetCarInfo() string {
+    return fmt.Sprintf("Model = %s, Year= %d, Horsepower: %d", c.Model, c.Year, c.Horsepower)
+}
+```
+
+#### 2. Pointer Receiver Methods (for modification)
+```go
+func (c *Car) UpdateHorsepower(newHorsepower int) {
+    c.Horsepower = newHorsepower
+}
+```
+
+### Complete Example with Explanations
+```go
+func main() {
+    // 1. Struct literal initialization
+    car1 := Car{
+        Model:      "Toyota Camry",
+        Year:       2020,
+        Horsepower: 203,
+        Color:      "White",
+        Wheels: []Wheel{
+            {Radius: 16, Width: 9.0},
+            {Radius: 16, Width: 9.0},
+        },
+    }
+
+    // Accessing struct fields
+    fmt.Println(car1)           // Print entire struct
+    fmt.Println(car1.Model)     // Access specific field
+    fmt.Println(car1.Wheels[0]) // Access nested struct
+
+    // 2. Using constructor function
+    car2 := New("Honda Accord", 2022, 192, "Black", 17, 8.5)
+    fmt.Println(car2.GetCarInfo())          // Call method
+    car2.UpdateHorsepower(150)              // Modify through pointer method
+    fmt.Println(car2.GetCarInfo())          // See the change
+}
+```
+
+### Struct vs Other Types Comparison
+
+| Feature | Structs | Maps | Slices |
+|---------|---------|------|--------|
+| **Type Safety** | Compile-time field checking | Runtime key checking | Index-based access |
+| **Field Access** | `obj.field` notation | `map[key]` notation | `slice[index]` notation |
+| **Memory Layout** | Predictable, contiguous | Hash table | Array-based |
+| **Zero Value** | Struct with zero-valued fields | `nil` | `nil` |
+| **Flexibility** | Fixed fields at compile time | Dynamic keys | Dynamic size |
+
+### Method Receivers: Value vs Pointer
+
+#### Value Receivers
+```go
+func (c Car) GetInfo() string {
+    // Receives a copy of the struct
+    // Cannot modify original struct
+    // Use for read-only operations
+    return c.Model
+}
+```
+
+#### Pointer Receivers
+```go
+func (c *Car) SetModel(model string) {
+    // Receives pointer to struct
+    // Can modify original struct
+    // More efficient for large structs
+    c.Model = model
+}
+```
+
+| Aspect | Value Receiver | Pointer Receiver |
+|--------|----------------|------------------|
+| **Modification** | Cannot modify original | Can modify original |
+| **Memory** | Creates copy | Uses original |
+| **Performance** | Slower for large structs | Faster, no copying |
+| **Safety** | Safe, no side effects | Can cause side effects |
+
+### Advanced Struct Patterns
+
+#### 1. Anonymous Structs
+```go
+person := struct {
+    Name string
+    Age  int
+}{
+    Name: "John",
+    Age:  30,
+}
+```
+
+#### 2. Struct Tags (for JSON, etc.)
+```go
+type User struct {
+    ID    int    `json:"id"`
+    Name  string `json:"name"`
+    Email string `json:"email,omitempty"`
+}
+```
+
+#### 3. Nested Structs
+```go
+type Address struct {
+    Street string
+    City   string
+}
+
+type Person struct {
+    Name    string
+    Address Address  // Nested struct
+}
+```
+
+#### 4. Struct Comparison
+```go
+car1 := Car{Model: "Toyota"}
+car2 := Car{Model: "Toyota"}
+
+if car1 == car2 {  // Structs are comparable if all fields are comparable
+    fmt.Println("Cars are identical")
+}
+```
+
+### Constructor Patterns
+
+#### 1. Basic Constructor
+```go
+func NewCar(model string, year int) *Car {
+    return &Car{
+        Model: model,
+        Year:  year,
+    }
+}
+```
+
+#### 2. Constructor with Validation
+```go
+func NewValidatedCar(model string, year int) (*Car, error) {
+    if year < 1900 {
+        return nil, errors.New("invalid year")
+    }
+    return &Car{Model: model, Year: year}, nil
+}
+```
+
+#### 3. Functional Options Pattern
+```go
+type CarOption func(*Car)
+
+func WithColor(color string) CarOption {
+    return func(c *Car) {
+        c.Color = color
+    }
+}
+
+func NewCarWithOptions(model string, options ...CarOption) *Car {
+    car := &Car{Model: model}
+    for _, option := range options {
+        option(car)
+    }
+    return car
+}
+
+// Usage: NewCarWithOptions("Toyota", WithColor("Red"))
+```
+
+### Struct Best Practices
+
+#### 1. Field Naming and Organization
+```go
+type Car struct {
+    // Group related fields together
+    // Exported fields start with capital letter
+    Model      string  // Public field
+    Year       int     // Public field
+    
+    // Private fields start with lowercase
+    engineSize float64 // Private field
+}
+```
+
+#### 2. Zero Value Consideration
+```go
+type Config struct {
+    Host    string  // Zero value: ""
+    Port    int     // Zero value: 0
+    Enabled bool    // Zero value: false
+}
+
+func (c Config) IsValid() bool {
+    return c.Host != "" && c.Port > 0
+}
+```
+
+#### 3. Embedding vs Composition
+```go
+// Embedding (IS-A relationship)
+type Truck struct {
+    Car  // Truck IS-A Car
+    LoadCapacity int
+}
+
+// Composition (HAS-A relationship)
+type Garage struct {
+    Cars []Car  // Garage HAS Cars
+    Name string
+}
+```
+
+### Key Struct Operations Summary
+
+| Operation | Syntax | Description |
+|-----------|--------|-------------|
+| **Define** | `type Name struct {...}` | Define new struct type |
+| **Initialize** | `Name{field: value}` | Create struct instance |
+| **Access Field** | `instance.field` | Access struct field |
+| **Method Call** | `instance.method()` | Call struct method |
+| **Get Pointer** | `&instance` | Get pointer to struct |
+| **Constructor** | `func New() *Type` | Factory function pattern |
+
+### Best Practices
+
+1. **Use pointer receivers** for methods that modify the struct or for large structs
+2. **Use value receivers** for small structs and read-only methods
+3. **Group related fields** together in struct definition
+4. **Use constructor functions** for complex initialization logic
+5. **Consider zero values** when designing struct fields
+6. **Use embedding** for IS-A relationships, composition for HAS-A relationships
+7. **Keep structs focused** - single responsibility principle
+8. **Use struct tags** for serialization metadata
+9. **Make fields private** unless they need to be accessed from other packages
+10. **Document exported types and methods** with comments
+
+### Common Patterns
+
+#### Repository Pattern
+```go
+type UserRepository struct {
+    db *sql.DB
+}
+
+func (r *UserRepository) Create(user User) error {
+    // Implementation
+    return nil
+}
+
+func (r *UserRepository) FindByID(id int) (*User, error) {
+    // Implementation
+    return nil, nil
+}
+```
+
+#### Builder Pattern
+```go
+type CarBuilder struct {
+    car Car
+}
+
+func (b *CarBuilder) Model(model string) *CarBuilder {
+    b.car.Model = model
+    return b
+}
+
+func (b *CarBuilder) Year(year int) *CarBuilder {
+    b.car.Year = year
+    return b
+}
+
+func (b *CarBuilder) Build() Car {
+    return b.car
+}
+
+// Usage: car := NewCarBuilder().Model("Toyota").Year(2023).Build()
+```
+
+Structs are fundamental to Go programming and provide a powerful way to model complex data and behavior. Understanding struct composition, methods, and best practices is essential for building robust Go applications.
+
+## Interfaces
+
+Interfaces in Go define a contract by specifying a set of method signatures that a type must implement. They enable polymorphism and provide a way to write flexible, loosely-coupled code. Go interfaces are implemented implicitly - if a type has all the methods that an interface requires, it automatically implements that interface.
+
+### Key Characteristics of Interfaces
+
+1. **Implicit Implementation**: Types implement interfaces automatically when they have the required methods
+2. **Contract Definition**: Interfaces specify what methods a type must have, not how they work
+3. **Polymorphism**: Different types can be treated uniformly through a common interface
+4. **Composition**: Interfaces can be composed of other interfaces
+5. **Zero Value**: The zero value of an interface is `nil`
+
+### Interface Declaration and Usage
+
+#### Basic Interface Definition
+```go
+type Shape interface {
+    GetArea() float64
+    GetPerimeter() float64
+}
+```
+
+#### Types Implementing the Interface
+```go
+type Circle struct {
+    Radius float64
+}
+
+func (c Circle) GetArea() float64 {
+    return 3.14 * c.Radius * c.Radius
+}
+
+func (c Circle) GetPerimeter() float64 {
+    return 2 * 3.14 * c.Radius
+}
+// Circle implicitly implements Shape interface
+
+type Square struct {
+    Side float64
+}
+
+func (s *Square) GetArea() float64 {
+    s.Side = 10 // Demonstrate pointer receiver modification
+    return s.Side * s.Side
+}
+
+func (s Square) GetPerimeter() float64 {
+    return 4 * s.Side
+}
+// *Square implements Shape interface (due to pointer receiver on GetArea)
+```
+
+### Interface Implementation Rules
+
+#### Value vs Pointer Receivers and Interface Implementation
+
+| Method Receiver | Value Can Implement | Pointer Can Implement |
+|-----------------|---------------------|----------------------|
+| **Value Receiver** `(t Type)` | ✅ Yes | ✅ Yes |
+| **Pointer Receiver** `(t *Type)` | ❌ No | ✅ Yes |
+
+#### Example from Your Code:
+```go
+// Circle has value receivers - both Circle and *Circle implement Shape
+circle1 := Circle{Radius: 5}        // Circle implements Shape ✅
+circle2 := &Circle{Radius: 5}       // *Circle implements Shape ✅
+
+// Square has mixed receivers - only *Square implements Shape
+square := &Square{Side: 9}          // *Square implements Shape ✅
+// square := Square{Side: 9}        // Square does NOT implement Shape ❌
+```
+
+### Using Interfaces for Polymorphism
+
+#### Function Accepting Interface
+```go
+func PrintShapeArea(s Shape) {
+    fmt.Println("Area: ", s.GetArea())
+}
+
+func main() {
+    // Both types can be used polymorphically
+    circle := &Circle{Radius: 5}
+    square := &Square{Side: 9}
+    
+    PrintShapeArea(circle)    // Works - *Circle implements Shape
+    PrintShapeArea(square)    // Works - *Square implements Shape
+}
+```
+
+### Constructor Patterns with Interfaces
+
+#### Factory Function Returning Interface
+```go
+func NewSquare() Square {           // Returns value (but we need pointer for interface)
+    return Square{Side: 5}
+}
+
+func NewSquarePtr() *Square {       // Returns pointer (can implement interface)
+    return &Square{Side: 5}
+}
+
+func main() {
+    // Method 1: Create value, then get pointer
+    square := NewSquare()
+    PrintShapeArea(&square)         // Pass address to satisfy interface
+
+    // Method 2: Create pointer directly
+    squarePtr := NewSquarePtr()
+    PrintShapeArea(squarePtr)       // Pass pointer directly
+}
+```
+
+### Interface Values and Internal Structure
+
+When you assign a concrete type to an interface, the interface stores:
+1. **Type information** - the concrete type (*Square, Circle, etc.)
+2. **Value/Pointer** - the actual data or pointer to data
+
+```go
+var shape Shape = &Square{Side: 9}
+// shape interface contains:
+// - type: *Square
+// - data: pointer to Square{Side: 9}
+
+PrintShapeArea(shape)  // Calls GetArea() on the stored *Square
+```
+
+### Pointer Receivers and Interface Modification
+
+#### Why Pointer Receivers Matter
+```go
+func (s *Square) GetArea() float64 {
+    s.Side = 10  // Modifies the original struct
+    return s.Side * s.Side
+}
+
+func main() {
+    square := &Square{Side: 5}
+    fmt.Println("Before:", square.Side)     // 5
+    PrintShapeArea(square)                  // Calls GetArea through interface
+    fmt.Println("After:", square.Side)      // 10 - original struct modified!
+}
+```
+
+#### Interface Preserves Pointer Semantics
+Even when passed to a function as an interface parameter, the pointer semantics are preserved:
+
+```go
+func PrintShapeArea(s Shape) {        // s is interface value
+    s.GetArea()                       // But this still calls pointer method
+}
+// The modification persists because interface stores the original pointer
+```
+
+### Empty Interface and Type Assertions
+
+#### Empty Interface (`interface{}` or `any`)
+```go
+func printAnything(value any) {       // any is alias for interface{}
+    fmt.Println("Value:", value)
+}
+
+func main() {
+    printAnything(42)                 // int
+    printAnything("hello")            // string
+    printAnything(&Square{Side: 5})   // *Square
+}
+```
+
+#### Type Assertions
+```go
+func describeShape(s Shape) {
+    switch v := s.(type) {            // Type switch
+    case *Square:
+        fmt.Printf("Square with side: %.2f\n", v.Side)
+    case Circle:
+        fmt.Printf("Circle with radius: %.2f\n", v.Radius)
+    default:
+        fmt.Println("Unknown shape")
+    }
+}
+```
+
+### Interface Composition
+
+#### Embedding Interfaces
+```go
+type Drawable interface {
+    Draw()
+}
+
+type Movable interface {
+    Move(x, y float64)
+}
+
+type GameObject interface {
+    Drawable                          // Embed interfaces
+    Movable
+    GetPosition() (float64, float64)
+}
+```
+
+### Best Practices for Interfaces
+
+#### 1. Small Interfaces
+```go
+// Good - small, focused interface
+type Writer interface {
+    Write([]byte) (int, error)
+}
+
+// Less ideal - large interface
+type LargeInterface interface {
+    Method1()
+    Method2()
+    Method3()
+    // ... many methods
+}
+```
+
+#### 2. Interface Naming Convention
+```go
+// Single method interfaces often end in -er
+type Reader interface {
+    Read([]byte) (int, error)
+}
+
+type Stringer interface {
+    String() string
+}
+```
+
+#### 3. Accept Interfaces, Return Concrete Types
+```go
+// Good - accept interface parameter
+func ProcessShape(s Shape) float64 {
+    return s.GetArea()
+}
+
+// Good - return concrete type
+func NewSquare(side float64) *Square {
+    return &Square{Side: side}
+}
+```
+
+### Complete Example Analysis
+
+Your current code demonstrates several key concepts:
+
+```go
+func main() {
+    square := NewSquare()           // Returns Square value
+    dummyFunction(&square)          // Pass address to pointer parameter
+    
+    // If you wanted to use with interface:
+    // PrintShapeArea(&square)      // Need address because GetArea has pointer receiver
+}
+
+func NewSquare() Square {           // Returns value, not pointer
+    return Square{Side: 5}
+}
+
+func dummyFunction(s *Square) {     // Accepts pointer
+    s.Side = 20                     // Modifies original through pointer
+}
+```
+
+### Key Interface Patterns
+
+#### 1. Strategy Pattern
+```go
+type SortStrategy interface {
+    Sort([]int) []int
+}
+
+type QuickSort struct{}
+func (q QuickSort) Sort(data []int) []int { /* implementation */ }
+
+type BubbleSort struct{}
+func (b BubbleSort) Sort(data []int) []int { /* implementation */ }
+```
+
+#### 2. Repository Pattern
+```go
+type UserRepository interface {
+    Save(user User) error
+    FindByID(id string) (User, error)
+}
+
+type DatabaseRepo struct { /* fields */ }
+func (d DatabaseRepo) Save(user User) error { /* implementation */ }
+func (d DatabaseRepo) FindByID(id string) (User, error) { /* implementation */ }
+```
+
+### Interface vs Struct Comparison
+
+| Aspect | Interfaces | Structs |
+|--------|------------|---------|
+| **Purpose** | Define behavior contract | Define data structure |
+| **Implementation** | Implicit (duck typing) | Explicit declaration |
+| **Storage** | Reference to concrete type | Actual data |
+| **Polymorphism** | Enables polymorphism | Single concrete type |
+| **Zero Value** | `nil` | Zero-valued fields |
+
+### Summary of Key Points
+
+1. **Implicit Implementation**: No explicit "implements" keyword needed
+2. **Pointer Receivers**: Only pointer types can implement interfaces with pointer receiver methods
+3. **Interface Values**: Store both type information and data/pointer
+4. **Polymorphism**: Multiple types can be treated uniformly through interfaces
+5. **Modification**: Pointer semantics are preserved through interface calls
+6. **Best Practices**: Keep interfaces small, accept interfaces as parameters, return concrete types
+
+Interfaces are one of Go's most powerful features, enabling clean, flexible, and testable code through polymorphism and dependency injection patterns.
