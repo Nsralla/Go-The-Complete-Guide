@@ -1,61 +1,87 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
-type Shape interface {
-	GetArea() float64
-	GetPerimeter() float64
+type User struct{
+	Name string
+	PhoneNumber int
 }
 
-type Circle struct {
-	Radius float64
-}
-
-func (c Circle) GetArea() float64{
-	return 3.14 * c.Radius * c.Radius
-}
-
-func (c Circle) GetPerimeter() float64{
-	return 2 * 3.14 * c.Radius
-}
-// Since Circle has the methods GetArea and GetPerimeter with the correct signatures, it implicitly implements the Shape interface.
-// So we can say that a circle is a shape.
-
-type Square struct {
-	Side float64
-}
-func (s *Square) GetArea() float64{
-	s.Side = 10 // Modifying the Side field to demonstrate pointer receiver
-	return s.Side * s.Side
-}
-func (s Square) GetPerimeter() float64{
-	return 4 * s.Side
-}
-
-func dummyFunction(s *Square){
-	s.Side = 20
-}
-
-func NewSquare()Square{
-	return Square{
-		Side:5,
+func getUserMap(names []string, phoneNumbers []int) (map[string]User,error) {
+	if len(names) != len(phoneNumbers){
+		return nil, errors.New("names and phone numbers must has the same length") 
 	}
+
+	info := make(map[string]User)
+	for index, name := range names{
+		info[name] = User{
+			Name: name,
+			PhoneNumber: phoneNumbers[index],
+		}
+	}
+	return info, nil
 }
-func main(){
-	square := NewSquare()
-	dummyFunction(&square)
-	// square.GetArea()
+
+func main() {
+	info, err := getUserMap([]string{"nsr","hasan","ahmad"}, []int{1113,03231, 3129})
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(info)
+
+	deleted, err := deleteIfNecessary(info, "nsr")
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("was delelted? ",deleted)
+	fmt.Println(info)
+	// _,ok := info["hasan"]
+	// if !ok{
+	// 	fmt.Println("hasan doesn't exists")
+	// }
+
+	fmt.Println(getCounts([]string{"2","2","4","44","5","5"}))
+
+	fmt.Println(getNameCounts([]string{"nsr","ahmad","ali","nael","nsr","ali"}))
+}
+//  Maps are passed by reference, so like slices
+func deleteIfNecessary(users map[string]User, name string)(deleted bool, err error){
 	
-	// PrintShapeArea(square) // send the address of square, because getArea has a pointer receiver
-	// fmt.Println("Side of the square after GetArea call: ", square.Side)
+	if  _, ok := users[name]; !ok{
+		fmt.Println("User with such name doesn't exist")
+		return false, errors.New("User doesn't exist")
+	}
+	delete(users, name)
+	return true, nil
+}
+func getCounts(userIDs []string)map[string]int{
+	idFrequency := make(map[string]int)
+
+	for _, id :=range userIDs{
+		frequency := idFrequency[id]
+		fmt.Println("freq: ",frequency)
+		frequency ++
+		idFrequency[id] = frequency
+	}
+	return idFrequency
 }
 
-// func PrintShapeArea(s Shape){
-// 	fmt.Println("Area: ", s.GetArea())
-// }
 
-
-
-
+func getNameCounts(names []string)map[rune]map[string]int{
+	namesFreqByChar := make(map[rune]map[string]int)
+	for _, name := range names{
+		firChar := []rune(name)[0]
+		if len(namesFreqByChar[firChar]) == 0{
+			namesFreqByChar[firChar] = map[string]int{name: 1}
+		}else{
+		 	namesFreqByChar[firChar][name] ++
+		}
+		
+	}
+	return  namesFreqByChar
+}

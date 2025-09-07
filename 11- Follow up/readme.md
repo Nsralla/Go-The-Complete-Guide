@@ -2335,6 +2335,8 @@ Interfaces in Go define a contract by specifying a set of method signatures that
 ```go
 type Shape interface {
     GetArea() float64
+
+
     GetPerimeter() float64
 }
 ```
@@ -2632,3 +2634,130 @@ func (d DatabaseRepo) FindByID(id string) (User, error) { /* implementation */ }
 6. **Best Practices**: Keep interfaces small, accept interfaces as parameters, return concrete types
 
 Interfaces are one of Go's most powerful features, enabling clean, flexible, and testable code through polymorphism and dependency injection patterns.
+
+
+## Type Assertions
+```go
+package main
+
+import (
+	"fmt"
+)
+
+type Shape interface {
+	GetArea() float64
+	GetPerimeter() float64
+}
+
+type Circle struct  {
+	Radius float64
+}
+
+func (c Circle) GetArea() float64{
+	return 3.14 * c.Radius * c.Radius
+}
+
+func (c Circle) GetPerimeter() float64{
+	return 2 * 3.14 * c.Radius
+}
+// Since Circle has the methods GetArea and GetPerimeter with the correct signatures, it implicitly implements the Shape interface.
+// So we can say that a circle is a shape.
+
+type Square struct {
+	Side float64
+}
+func (s Square) GetArea() float64{
+	s.Side = 10 // Modifying the Side field to demonstrate pointer receiver
+	return s.Side * s.Side
+}
+func (s Square) GetPerimeter() float64{
+	return 4 * s.Side
+}
+
+func CheckType(s Shape){
+	c, ok := s.(Circle)
+	if ok{
+		fmt.Println("It's a Circle with radius:", c.Radius)
+	}else{
+		square, ok := s.(Square)
+		if ok{
+			fmt.Println("It's a Square with side:", square.Side)
+		}else{
+			fmt.Println("Unknown shape type")
+		}
+	}
+}
+func main(){
+	CheckType(Square{Side:4})
+	
+}
+// or
+func CheckType(s Shape){
+	switch shape := s.(type) {
+	case Circle:
+		fmt.Println("It's a Circle")
+		fmt.Println("Area:", shape.GetArea())
+	case Square:
+		fmt.Println("It's a Square")
+		fmt.Println("Area:", shape.GetArea())
+	default:
+		fmt.Println("unkown shape")
+	}
+	
+}
+
+
+
+```
+
+
+
+``` go
+
+
+package main
+
+import (
+	// "errors"
+	"fmt"
+	"sync"
+	"time"
+	// "time"
+)
+
+func main() {
+	// not working as expected !!!!!!!!!
+	var wg sync.WaitGroup
+
+	
+	chaInts := make(chan int, 3)
+	wg.Add(3)
+
+	go sendNum(chaInts, 83, &wg)
+	go sendNum2(chaInts, 21, &wg)
+	go sendNum(chaInts, 33, &wg)
+	// you need to close the channel, but not inside the sender, because you don't know which finishs first.
+	// so create a subroutine that waits until all sender finsh, then close the channel
+	// the reader inside the main will keep waiting until the channel is closed.
+	go func(){
+		wg.Wait()
+		close(chaInts)
+	}()
+
+	for v := range chaInts{ // it stays blocked until the channel closed
+		fmt.Println("v = ", v)
+	}
+}
+
+
+func sendNum(ch chan <- int, num int, wg *sync.WaitGroup){
+	time.Sleep(time.Second * 3)
+	defer wg.Done()
+	ch <- num
+}
+func sendNum2(ch chan <- int, num int, wg *sync.WaitGroup){
+	time.Sleep(time.Second * 1)
+	defer wg.Done()
+	ch <- num
+}
+```
