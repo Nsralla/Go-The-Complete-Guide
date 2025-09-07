@@ -1,87 +1,53 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"math/rand"
+	"sync"
+	"time"
 )
 
-type User struct{
-	Name string
-	PhoneNumber int
-}
-
-func getUserMap(names []string, phoneNumbers []int) (map[string]User,error) {
-	if len(names) != len(phoneNumbers){
-		return nil, errors.New("names and phone numbers must has the same length") 
-	}
-
-	info := make(map[string]User)
-	for index, name := range names{
-		info[name] = User{
-			Name: name,
-			PhoneNumber: phoneNumbers[index],
-		}
-	}
-	return info, nil
-}
-
 func main() {
-	info, err := getUserMap([]string{"nsr","hasan","ahmad"}, []int{1113,03231, 3129})
-	if err != nil{
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(info)
+	balance := 1000
+	var wg sync.WaitGroup
+	mu := sync.Mutex{}
 
-	deleted, err := deleteIfNecessary(info, "nsr")
-	if err != nil{
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("was delelted? ",deleted)
-	fmt.Println(info)
-	// _,ok := info["hasan"]
-	// if !ok{
-	// 	fmt.Println("hasan doesn't exists")
-	// }
-
-	fmt.Println(getCounts([]string{"2","2","4","44","5","5"}))
-
-	fmt.Println(getNameCounts([]string{"nsr","ahmad","ali","nael","nsr","ali"}))
-}
-//  Maps are passed by reference, so like slices
-func deleteIfNecessary(users map[string]User, name string)(deleted bool, err error){
+		// Create a new random source
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	wg.Add(10)
+	for i := 0; i < 5; i++ {
 	
-	if  _, ok := users[name]; !ok{
-		fmt.Println("User with such name doesn't exist")
-		return false, errors.New("User doesn't exist")
+		// Generate random number between 500 and 1500
+		randomNum := r.Intn(1001) + 500  // 500 to 1500 inclusive
+		go Deposit(randomNum, &balance, &mu, &wg)
+		go Withdrawl(randomNum, &balance, &mu, &wg)
 	}
-	delete(users, name)
-	return true, nil
-}
-func getCounts(userIDs []string)map[string]int{
-	idFrequency := make(map[string]int)
 
-	for _, id :=range userIDs{
-		frequency := idFrequency[id]
-		fmt.Println("freq: ",frequency)
-		frequency ++
-		idFrequency[id] = frequency
-	}
-	return idFrequency
+	wg.Wait()
+	fmt.Println("Balance: ", balance)
+
 }
 
+func Deposit(amount int, balance *int, mu *sync.Mutex, wg *sync.WaitGroup) {
+	
+	
+	mu.Lock()
+	defer wg.Done()
+	(*balance) += amount
+	fmt.Printf("Depositing %v. your balance is %v \n", amount, *balance)
+	mu.Unlock()
 
-func getNameCounts(names []string)map[rune]map[string]int{
-	namesFreqByChar := make(map[rune]map[string]int)
-	for _, name := range names{
-		firChar := []rune(name)[0]
-		if len(namesFreqByChar[firChar]) == 0{
-			namesFreqByChar[firChar] = map[string]int{name: 1}
-		}else{
-		 	namesFreqByChar[firChar][name] ++
-		}
+}
+
+func Withdrawl(amount int, balance *int, mu *sync.Mutex, wg *sync.WaitGroup) {
+	mu.Lock()
+	defer wg.Done()
+	if (*balance) - amount < 0 {
+		fmt.Printf("You don't have sufficent amount to withdraw %v, your balance is %v\n", amount, *balance)
+	} else {
 		
+		(*balance) -= amount
+		fmt.Printf("Withdrawling %v, your balance is %v\n", amount, *balance)
 	}
-	return  namesFreqByChar
+	mu.Unlock()
 }
