@@ -1,0 +1,8 @@
+POST http://localhost:8080/events
+Content-Type: application/json
+
+{
+    "name":"nsr sit elitr stet ea.",
+    "description": "Di quale segreto da 'l che infiniti potremmo, priegano incominciare discerniamo sempre carissime per da quale. Iscacciato in e vita.",
+    "location": "Égjen hontalan öszetörjetek tátogjatok minden ti lágy kultúra is nem, halak pénzt viselők szeret tagadta öszetörjetek vakogjatok lovak a."
+}
